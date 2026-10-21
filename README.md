@@ -29,8 +29,9 @@ This repository provides all scripts and supporting resources required to reprod
 ## Description of the datasets
 
 The study includes 2 folders of datasets :
+Each folder include Single-cell ,HTO and BCR datas for young and aged mice (in duplicat) for both thymus and spleen as below:
 
-* Each folder include Single-cell ,HTO and BCR datas for young and aged mice (in duplicat) for both thymus and spleen as below:
+* Thymus
 
 | Dataset name | title | genotype|Tissue| 
 | :--------------- |:--------------- |:-------|:-------|
@@ -46,6 +47,10 @@ The study includes 2 folders of datasets :
 | BCR_ThyB_exp1_Young_S3_R2_001	| Mus Musculus C57BL/6J Thymic B cells BCR Young reverse reads (mouse age: 8 weeks) | Young |Thymus
 | BCR_ThyB_exp1_Aged_S4_R1_001	| Mus Musculus C57BL/6J Thymic B cells BCR Aged forward reads (mouse age: 12 months) | Aged |Thymus
 | BCR_ThyB_exp1_Aged_S4_R2_001	| Mus Musculus C57BL/6J Thymic B cells BCR Aged reverse reads (mouse age: 12 months) | Aged |Thymus
+
+* Spleen
+| Dataset name | title | genotype|Tissue| 
+| :--------------- |:--------------- |:-------|:-------|
 | GEX_ThyB_exp1_Spleen_S1_R1_001 | Mus Musculus C57BL/6J Splenic B cells GEX forward reads (mouse age: 8 weeks and 12 months) | Young/Aged |Spleen
 | GEX_ThyB_exp1_Spleen_S1_R2_001 | Mus Musculus C57BL/6J Splenic B cells GEX reverse reads (mouse age: 8 weeks and 12 months) | Young/Aged |Spleen
 | HTO_ThyB_exp1_Spleen_S3_R1_001 | Mus Musculus C57BL/6J Splenic B cells HTO forward reads (mouse age: 8 weeks and 12 months) | Young/Aged |Spleen
@@ -70,6 +75,9 @@ After quality assessment, all datasets are combined into a single integrated ana
 
 The scripts and outputs corresponding to this integrated analysis are available in the Integrated directory.
 
+
+### Third step : Global heterogeinity analysis and BCR repertoire analysis
+After the integration , all the analysis steps mentioned in the article are made from this step including final UMAP , cell proportions , gene expression and BCR analysis
 ---
 
 ## Structure of the data and code
