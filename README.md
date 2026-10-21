@@ -197,6 +197,7 @@ To download and uncompress the data, use the following code:
 Once done, you may obtain the following subfolder structure, each of them containing several files.
 
 ```
+
     AgingB
     ├── ThyB
     │   ├── 00_RawData
