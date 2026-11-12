@@ -92,14 +92,14 @@ The repository is structured around individual datasets. Each dataset has its ow
 └── Aging_B
     ├── ThyB
     ├── SpleenB
-    └── Integrated
+    └── spleen_thymus_sc_merge
 ``` 
 
 ### Folders inside the datasets
 
 Each dataset directory contains two complementary groups of files: one dedicated to the analysis code and another containing the generated outputs.
 
- * The GitHub repository provides the source code, including the scripts (03_Scripts) and Docker definition files (02_Container).
+ * The GitHub repository provides the source code, including the scripts (03_Scripts) and Docker definition files (02_Container). For example:
 ```
 .
 └── Aging_B
@@ -108,19 +108,20 @@ Each dataset directory contains two complementary groups of files: one dedicated
     │   ├── 03_Scripts
 ```
 
- * The Zenodo archive contains the rawdata ,pre-built container images, processed data and analysis outputs.
+ * The Zenodo archive contains the rawdata ,pre-built container images, processed data and analysis outputs.For example :
  
 ```
 .
 └── Aging_B
     ├── ThyB
     │   ├── 00_RawData
+    |   ├── 01_Reference
     │   ├── 02_Container
     │   ├── 05_Output
 
 ```
 
----
+
 ---
 
 ## Prepare the environments
@@ -129,7 +130,8 @@ Before running the analyses, a few setup steps are required:
 
 * clone the GitHub repository and define the WORKING_DIR environment variable;
 * download the datasets;
-* install Docker to execute the analyses within the provided containerized environment.
+* Install Snakemake
+* install Docker and Singularity to execute the analyses within the provided containerized environment.
 
 Detailed instructions are provided below.
 
@@ -137,7 +139,7 @@ Detailed instructions are provided below.
 
 #### Clone the GitHub repository
 
-Clone the repository into the directory of your choice using your preferred Git client. This will create a local **Tcf7** directory containing all analysis scripts.
+Clone the repository into the directory of your choice using your preferred Git client. This will create a local **Aging_B** directory containing all analysis scripts.
 
 #### Set the Working Dir variable
 
@@ -148,7 +150,7 @@ For example, if the repository was cloned into **/home/malki/workspace**, the va
 **On linux:**
 
 ```
-    export WORKING_DIR=/home/malki/workspace/AgingB
+    export WORKING_DIR=/home/malki/workspace/Aging_B
 ```
 
 #### Add your working dir in the code
@@ -210,10 +212,12 @@ Once done, you may obtain the following subfolder structure, each of them contai
     AgingB
     ├── ThyB
     │   ├── 00_RawData
+    |   ├── 01_Reference
     │   ├── 02_Container
     │   └── 05_Output
     ├── SpleenB
     │   ├── 00_RawData
+    |   ├── 01_Reference
     │   ├── 02_Container
     │   └── 05_Output
     └── Integrated
@@ -234,19 +238,83 @@ Docker archives must first be imported into your local Docker installation.
 
 ### Install the Docker environment to run the analysis interactively
 
-#### Install Docker
+#### Install Docker and Singularity 
+
+You need to install Singularity on your system to run the complete analysis . Follow the instructions here : https://sylabs.io/guides/2.6/admin-guide/
 
 To execute the analyses interactively through RStudio, install Docker by following the official installation guide:
 
 https://docs.docker.com/get-docker/
 
 
-#### Load the images
+#### Install Snakemake
 
-Once done, load the downloaded image using:
+You need Snakemake to run the complete workflow , use your preferred solution
+
+
+### Download the Singularity images
+
+Singularity images files are stored on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5566675.svg)](https://doi.org/10.5281/zenodo.5566675). Open a shell command and change dir to the root of the cloned Git repository (WORKING_DIR). Then execute the following commands to download the tarball file and untar  it:
+
+**On linux:**
 
 ```
-docker load -i <image_name>.tar.gz
+    cd $WORKING_DIR
+    wget https://zenodo.org/record/5566675/files/moFluMemB_SingularityImages.tar.gz -O seurat_anaylysis.sif.tar.gz
+    tar zxvf seurat_anaylysis.sif.tar.gz
+```
+
+These commands will create a sub-folder named **02_Container** in the first dataset folder:
+
+```
+    Aging_B
+      └──spleen_thymus_sc_merge 
+          └── spleen_thymus_sc_merge
+              └── 02_Container
+```
+
+This folder contains the Singularity images for the single-cell RNA-seq analysis. Since the Singularity images are used for the 3 single-cell analyses, they must be present in all the sample folder in the same **02_Container** subfolder. Instead of copying the image files, we will create symbolic links to spare disk space:
+
+**On linux:**
+
+```
+    cd $WORKING_DIR
+    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/mglab_moflumemb_seuratrf.img $WORKING_DIR/ThyB/ThyB_single_cell/02_Container/seurat_anaylysis.sif
+    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/mglab_moflumemb_seuratrf.img $WORKING_DIR/ThyB/ThyB_single_cell/02_Container/seurat_analysis.sif
+```
+
+### (Optional) Download the Docker images and load them on your system
+
+Docker image tar files are stored on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5566675.svg)](https://doi.org/10.5281/zenodo.5566675). Open a shell command and change dir to the root of the cloned Git repository (WORKING_DIR). Then execute the following commands to download the tarball file, untar it and load the docker images on your system: 
+
+```
+    cd $WORKING_DIR
+    wget https://zenodo.org/record/5566675/files/moFluMemB_DockerImages.tar.gz -O seurat_anaylysis.tar.gz
+    tar zxvf seurat_anaylysis.tar.gz
+    docker load -i seurat_anaylysis.tar
+```
+
+---
+---
+
+## Run the analysis
+
+### Run the analysis workflow using Snakemake
+
+The analysis workflow uses the Singularity images and Snakemake.
+
+The study contains 3 analysis of single-cell RNA-seq data. Each analysis have several steps for which you will find the R script files in the subfolder **03_Script**.
+
+Each step of analysis generates its own HTML report file and several output files. Some output files of some steps are used by other steps, making a complete workflow of analysis. The output files are stored in each datatset folder in a sub-folder named "05_Output".
+
+The simpliest way to run the complete single-cell analysis of a sample is to use the Snakemake workflow dedicated to each sample. The workflow is controlled by a snakefile stored in the **04_Workflow** subfolder of **spleen_thymus_sc_merge** folder. This workflow uses Singularity images (see above) to control the software environment for each analysis step. So you need both Snakemake and Singularity installed on your system to use this workflow (see above).
+
+In order to use the snakemake workflow, please type first the following commands:
+
+To run the analysis for the three datasets, run the following commands:
+```
+     cd $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/04_Workflow
+     snakemake -r --snakefile All_analysis.py --cores (choose cores u want to use) --sdm apptainer --apptainer-args "--bind /$WORKING_DIR:/$WORKING_DIR"
 ```
 
 #### Run the analysis individually using Docker
@@ -256,13 +324,12 @@ If you have loaded the docker images (see above), you can use Rstudio in Docker 
 Launch the container with:
 
 ```
-docker run -d -p 8787:8787 -v /$WORKING_DIR:/$WORKING_DIR -e PASSWORD=<PASSWORD> -e USER=$(whoami) -e USERID=$(id -u) -e GROUPID=$(id -g)  <IMAGE_NAME>
+docker run -d -p 8787:8787 -v /$WORKING_DIR:/$WORKING_DIR -e PASSWORD=<PASSWORD> -e USER=$(whoami) -e USERID=$(id -u) -e GROUPID=$(id -g)  seurat_analysis
 ```
 
 where:
 
 * <PASSWORD> is a simple string you will use as password to login into Rstudio
-* <IMAGE_NAME> is the Docker image name to run
 
 Once the container is running, open a web browser and connect to:
 
