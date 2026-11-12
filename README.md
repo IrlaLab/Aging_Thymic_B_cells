@@ -225,7 +225,7 @@ Edit those files and in each of them locate the line defining the **PATH_PROJECT
 ```
 for example :
 
-PATH_PROJECT = "/home/malki/workspace/AgingB"
+PATH_PROJECT = "/home/malki/workspace/Aging_B"
 ```
 
 ---
@@ -262,7 +262,7 @@ https://docs.docker.com/get-docker/
     docker load -i seurat_anaylysis.tar
 ```
 
-#### Install Snakemake
+### Install Snakemake
 
 You need Snakemake to run the complete workflow , use your preferred solution
 
@@ -279,7 +279,7 @@ The study contains 3 analysis of single-cell RNA-seq data. Each analysis have se
 
 Each step of analysis generates its own HTML report file and several output files. Some output files of some steps are used by other steps, making a complete workflow of analysis. The output files are stored in each datatset folder in a sub-folder named "05_Output".
 
-The simpliest way to run the complete single-cell analysis of a sample is to use the Snakemake workflow dedicated to each sample. The workflow is controlled by a snakefile stored in the **04_Workflow** subfolder of **spleen_thymus_sc_merge** folder. This workflow uses Singularity images (see above) to control the software environment for each analysis step. So you need both Snakemake and Singularity installed on your system to use this workflow (see above).
+The simpliest way to run the complete single-cell analysis is to use the Snakemake workflow . The workflow is controlled by a snakefile stored in the **04_Workflow** subfolder of **spleen_thymus_sc_merge** folder. This workflow uses Singularity images (see above) to control the software environment for each analysis step. So you need both Snakemake and Singularity installed on your system to use this workflow (see above).
 
 In order to use the snakemake workflow, please type first the following commands:
 
