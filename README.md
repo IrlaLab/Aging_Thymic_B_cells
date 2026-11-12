@@ -78,12 +78,12 @@ The scripts and outputs corresponding to this integrated analysis are available 
 
 
 ### Third step : Global heterogeinity analysis and BCR repertoire analysis
+
 After the integration , all the analysis steps mentioned in the article are made from this step including final UMAP , cell proportions , gene expression and BCR analysis
+
 ---
 
-## Structure of the data and code
-
-### Folders of the datasets
+## Folders of the datasets
 
 The repository is structured around individual datasets. Each dataset has its own directory containing the analysis resources. After downloading both the repository and associated data, the project hierarchy should resemble the following:
 
@@ -94,34 +94,6 @@ The repository is structured around individual datasets. Each dataset has its ow
     ├── SpleenB
     └── spleen_thymus_sc_merge
 ``` 
-
-### Folders inside the datasets
-
-Each dataset directory contains two complementary groups of files: one dedicated to the analysis code and another containing the generated outputs.
-
- * The GitHub repository provides the source code, including the scripts (03_Scripts) and Docker definition files (02_Container). For example:
-```
-.
-└── Aging_B
-    ├── ThyB
-    │   ├── 02_Container
-    │   ├── 03_Scripts
-```
-
- * The Zenodo archive contains the rawdata ,pre-built container images, processed data and analysis outputs.For example :
- 
-```
-.
-└── Aging_B
-    ├── ThyB
-    │   ├── 00_RawData
-    |   ├── 01_Reference
-    │   ├── 02_Container
-    │   ├── 05_Output
-
-```
-
-
 ---
 
 ## Prepare the environments
@@ -129,29 +101,108 @@ Each dataset directory contains two complementary groups of files: one dedicated
 Before running the analyses, a few setup steps are required:
 
 * clone the GitHub repository and define the WORKING_DIR environment variable;
-* download the datasets;
+* Download the datasets;
 * Install Snakemake
-* install Docker and Singularity to execute the analyses within the provided containerized environment.
+* Install Docker and Singularity to execute the analyses within the provided containerized environment.
 
 Detailed instructions are provided below.
 
 ---
 
-#### Clone the GitHub repository
+## Clone the GitHub repository
 
 Clone the repository into the directory of your choice using your preferred Git client. This will create a local **Aging_B** directory containing all analysis scripts.
 
-#### Set the Working Dir variable
+--- 
 
-Create an environment variable named **WORKING_DIR** pointing to the location of the cloned repository.
+## Set the WORKING_DIR variable
 
-For example, if the repository was cloned into **/home/malki/workspace**, the variable should be defined as:
+Then, you must set an environment variable called **WORKING_DIR** with a value set to the path to this folder.
+
+For instance, if you have chosen to clone the Git repository in __"/home/malki/workspace"__, then the **WORKING_DIR** variable will be set to __"/home/malki/workspace/Aging_B"__
 
 **On linux:**
 
 ```
     export WORKING_DIR=/home/malki/workspace/Aging_B
 ```
+
+---
+
+Each dataset directory contains two complementary groups of files: one dedicated to the analysis code and another containing the generated outputs.
+
+ * The GitHub repository provides the source code, including the scripts (03_Scripts) and Docker definition files (02_Container).
+Scripts of the pre-processing steps are provided for Cell Ranger count analysis and corresponding raw data (fastq files) can be downloaded from GEO (see article).
+This creates the main project directory:
+```
+.
+└── Aging_B
+    ├── ThyB
+    │      └── ThyB_single_cell
+    │         ├── 02_Container
+    │         └── 03_Scripts
+    ├── SpleenB
+    │      └── SpleenB_single_cell
+    │         ├── 02_Container
+    │         └── 03_Scripts
+    └── spleen_thymus_sc_merge
+           └── spleen_thymus_sc_merge
+              ├── 02_Container
+              ├── 03_Scripts
+              └── 04_Workflow
+```
+
+---
+
+## Download the dataset
+
+Once you have done this download the zenodo archives
+* The Zenodo archive contains the pre-built container images, processed data and analysis outputs.
+Each experiment needs its own sub-folder containing the initial data used by the analysis. Those data can be downloaded from Zenodo and uncompressed. The Zenodo dataset DOI are [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5564625.svg)](https://doi.org/10.5281/zenodo.5564625), [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5565864.svg)](https://doi.org/10.5281/zenodo.5565864) and [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5566675.svg)](https://doi.org/10.5281/zenodo.5566675). The initial data from the analysis are the pre-processed data :
+To download and uncompress the data, use the following code:
+
+**On linux:**
+
+```
+    cd $WORKING_DIR
+    wget https://zenodo.org/record/5564625/files/10x_190712_m_moFluMemB_processedData.tar.gz -O ThyB.tar.gz
+    tar zxvf ThyB.tar.gz
+    
+    wget https://zenodo.org/record/5565864/files/10x_191105_m_moFluMemB_processedData.tar.gz -O SpleenB.tar.gz
+    tar zxvf SpleenB.tar.gz
+
+    wget https://zenodo.org/record/5566675/files/custom_201216_m_moFluMemB_processedData.tar.gz -O spleen_thymus_sc_merge.tar.gz
+    tar zxvf spleen_thymus_sc_merge.tar.gz
+```
+
+Once done, you may obtain the following subfolder structure, each of them containing several files.
+
+```
+.
+└── Aging_B
+    ├── ThyB
+    │     └── ThyB_single_cell
+    │           ├── 01_References
+    │           ├── 02_Container
+    │           ├── 03_Scripts
+    │           └── 05_Output
+    ├── SpleenB
+    │     └── SpleenB_single_cell
+    │           ├── 01_References
+    │           ├── 02_Container
+    │           ├── 03_Scripts
+    │           └── 05_Output
+    ├── spleen_thymus_sc_merge
+    │     └── spleen_thymus_sc_merge
+    │           ├── 01_References
+    │           ├── 02_Container
+    │           ├── 03_Scripts
+    │           ├── 04_Workflow
+    │           └── 05_Output
+    
+```
+
+---
 
 #### Add your working dir in the code
 
@@ -163,10 +214,9 @@ For instance:
 
 ```
     AgingB
-    │
-    ├── ThyB
-    │   │
-    │   └── 03_Script/projectParams.R
+    └── ThyB
+          └──ThyB_single_cell 
+              └── 03_Script/projectParams.R
 
 ```
 
@@ -179,63 +229,6 @@ PATH_PROJECT = "/home/malki/workspace/AgingB"
 ```
 
 ---
-
-### Download the data
-
-Raw FASTQ sequencing files are publicly available from GEO, whereas processed datasets and analysis outputs can be obtained from Zenodo.
-
-********ADD THE ZENODO FILES******************
-
-To preserve the expected directory structure, extract the downloaded files directly into **WORKING_DIR**.
-
-To download and uncompress the data, use the following code:
-
-
-**On linux:**
-
-```
-    cd $WORKING_DIR
-    wget https://zenodo.org/record/21217512/files/Tcf7_WT_sc.tar.gz -O Tcf7_WT_sc.tar.gz *to modify
-    tar zxvf Tcf7_WT_sc.tar.gz
-    
-    wget https://zenodo.org/record/21395547/files/Tcf7_KO_sc.tar.gz -O Tcf7_KO_sc.tar.gz *to modify
-    tar zxvf Tcf7_KO_sc.tar.gz
-
-    wget https://zenodo.org/record/21395640/files/Tcf7_Integrated.tar.gz -O Tcf7_Integrated.tar.gz *to modify
-    tar zxvf Tcf7_Integrated.tar.gz
-```
- 
-Once done, you may obtain the following subfolder structure, each of them containing several files.
-
-```
-
-    AgingB
-    ├── ThyB
-    │   ├── 00_RawData
-    |   ├── 01_Reference
-    │   ├── 02_Container
-    │   └── 05_Output
-    ├── SpleenB
-    │   ├── 00_RawData
-    |   ├── 01_Reference
-    │   ├── 02_Container
-    │   └── 05_Output
-    └── Integrated
-        ├── 02_Container
-        └── 05_Output
-
-```
-
---- 
-
-#### Download the container images
-
-Docker archives (.tar.gz) are available in the **02_Container** directory of each dataset.
-
-Docker archives must first be imported into your local Docker installation.
-
----
-
 ### Install the Docker environment to run the analysis interactively
 
 #### Install Docker and Singularity 
@@ -247,52 +240,31 @@ To execute the analyses interactively through RStudio, install Docker by followi
 https://docs.docker.com/get-docker/
 
 
-#### Install Snakemake
-
-You need Snakemake to run the complete workflow , use your preferred solution
-
-
 ### Download the Singularity images
 
-Singularity images files are stored on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5566675.svg)](https://doi.org/10.5281/zenodo.5566675). Open a shell command and change dir to the root of the cloned Git repository (WORKING_DIR). Then execute the following commands to download the tarball file and untar  it:
+**spleen_thymus_sc_merge/02_Container** folder contains the Singularity images for the single-cell RNA-seq analysis. Since the Singularity images are used for the 3 single-cell analyses, they must be present in all the sample folder in the same **02_Container** subfolder. Instead of copying the image files, we will create symbolic links to spare disk space:
 
 **On linux:**
 
 ```
-    cd $WORKING_DIR
-    wget https://zenodo.org/record/5566675/files/moFluMemB_SingularityImages.tar.gz -O seurat_anaylysis.sif.tar.gz
-    tar zxvf seurat_anaylysis.sif.tar.gz
-```
-
-These commands will create a sub-folder named **02_Container** in the first dataset folder:
-
-```
-    Aging_B
-      └──spleen_thymus_sc_merge 
-          └── spleen_thymus_sc_merge
-              └── 02_Container
-```
-
-This folder contains the Singularity images for the single-cell RNA-seq analysis. Since the Singularity images are used for the 3 single-cell analyses, they must be present in all the sample folder in the same **02_Container** subfolder. Instead of copying the image files, we will create symbolic links to spare disk space:
-
-**On linux:**
-
-```
-    cd $WORKING_DIR
-    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/mglab_moflumemb_seuratrf.img $WORKING_DIR/ThyB/ThyB_single_cell/02_Container/seurat_anaylysis.sif
-    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/mglab_moflumemb_seuratrf.img $WORKING_DIR/ThyB/ThyB_single_cell/02_Container/seurat_analysis.sif
+    cd $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container
+    tar zxvf seurat_analysis.sif.tar.gz
+    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/seurat_analysis.sif $WORKING_DIR/ThyB/ThyB_single_cell/02_Container/seurat_analysis.sif
+    ln -s $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container/seurat_analysis.sif $WORKING_DIR/SpleenB/SpleenB_single_cell/02_Container/seurat_analysis.sif
 ```
 
 ### (Optional) Download the Docker images and load them on your system
 
-Docker image tar files are stored on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5566675.svg)](https://doi.org/10.5281/zenodo.5566675). Open a shell command and change dir to the root of the cloned Git repository (WORKING_DIR). Then execute the following commands to download the tarball file, untar it and load the docker images on your system: 
-
+**spleen_thymus_sc_merge/02_Container** folder contains the Docker images for the single-cell RNA-seq analysis.YOu only need to extract and load it one time
 ```
-    cd $WORKING_DIR
-    wget https://zenodo.org/record/5566675/files/moFluMemB_DockerImages.tar.gz -O seurat_anaylysis.tar.gz
+    cd $WORKING_DIR/spleen_thymus_sc_merge/spleen_thymus_sc_merge/02_Container
     tar zxvf seurat_anaylysis.tar.gz
     docker load -i seurat_anaylysis.tar
 ```
+
+#### Install Snakemake
+
+You need Snakemake to run the complete workflow , use your preferred solution
 
 ---
 ---
